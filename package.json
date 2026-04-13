@@ -7,9 +7,15 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js"
   },
   "dependencies": {
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mogoose": "^0.0.1-security",
+    "mongoose": "^9.3.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.12.0"
@@ -24,5 +30,18 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "vite": "^7.2.4"
-  }
+  },
+  "description": "A modern **Live Streaming web application** built using **React** and **Vite**, featuring a clean landing page, authentication flow, protected routes, and a watch/playlist section.  \r This project is designed as a **college-level functional demo** showcasing frontend architecture and user flow.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rajshreepanjiyar/Video_Streaming.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rajshreepanjiyar/Video_Streaming/issues"
+  },
+  "homepage": "https://github.com/Rajshreepanjiyar/Video_Streaming#readme"
 }

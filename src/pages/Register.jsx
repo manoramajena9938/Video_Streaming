@@ -7,33 +7,49 @@ function Register() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
   const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-  const handleRegister = () => {
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
     if (!emailRegex.test(email)) {
-      alert("Email must contain @ and end with @gmail.com");
+      alert("Email must be a valid @gmail.com");
       return;
     }
 
     if (!passwordRegex.test(password)) {
       alert(
-        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+        "Password must be 8+ chars with uppercase, lowercase, number & special character"
       );
       return;
     }
 
-    // Store credentials
-    localStorage.setItem("registeredEmail", email);
-    localStorage.setItem("registeredPassword", password);
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/users/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-    alert("Registration successful! Please login.");
+      const data = await res.json();
 
-    // ✅ Redirect to login (NO auto login)
-    navigate("/login");
+      alert(data.message);
+
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+      alert("Error connecting to backend");
+    }
   };
 
   return (
@@ -43,27 +59,25 @@ function Register() {
       <div className="auth-card">
         <h2>Register</h2>
 
-        <input
-          type="email"
-          placeholder="Email (must be @gmail.com)"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleRegister}>
+          <input
+            type="email"
+            placeholder="Email (@gmail.com)"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <p className="password-hint">
-          Password must contain uppercase, lowercase, number & special character
-        </p>
-
-        <button className="btn-primary" onClick={handleRegister}>
-          Register
-        </button>
+          <button type="submit" className="btn-primary">
+            Register
+          </button>
+        </form>
 
         <p className="auth-footer">
           Already have an account?{" "}

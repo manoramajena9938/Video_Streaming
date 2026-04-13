@@ -6,6 +6,8 @@ import Register from "./pages/Register";
 import Watch from "./pages/Watch";
 import CategoryVideos from "./pages/CategoryVideos";
 import Profile from "./pages/Profile.jsx";
+import ForgotPassword from "./pages/ForgotPassword";
+
 
 
 import Navbar from "./components/Navbar";
@@ -21,6 +23,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/watch" element={<Watch />} />
+        
 
         {/* PROTECTED WATCH ROUTES */}
         <Route

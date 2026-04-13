@@ -7,47 +7,51 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const [isForgot, setIsForgot] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-  const handleLogin = () => {
-    const storedEmail = localStorage.getItem("registeredEmail");
-    const storedPassword = localStorage.getItem("registeredPassword");
+  // 🔐 LOGIN FUNCTION (CONNECTED TO BACKEND)
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    if (!emailRegex.test(email)) {
-      alert("Email must end with @gmail.com");
-      return;
+    try {
+      const res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // Save login state
+      localStorage.setItem("isLoggedIn", "true");
+
+      setError("");
+      alert("Login successful");
+
+      navigate("/watch");
+
+    } catch (error) {
+      console.error(error);
+      setError("Error connecting to server");
     }
-
-    if (email !== storedEmail || password !== storedPassword) {
-      alert("Invalid email or password");
-      return;
-    }
-
-    localStorage.setItem("isLoggedIn", "true");
-
-    // Reward system
-    const currentPoints =
-      parseInt(localStorage.getItem("rewardPoints")) || 0;
-    localStorage.setItem("rewardPoints", currentPoints + 5);
-
-    alert("Login successful!");
-    navigate("/watch");
   };
 
-  const handleResetPassword = () => {
-    const storedEmail = localStorage.getItem("registeredEmail");
-
-    if (email !== storedEmail) {
-      alert("Email not registered");
-      return;
-    }
-
+  // 🔁 RESET PASSWORD (CONNECTED TO BACKEND)
+  const handleResetPassword = async () => {
     if (!passwordRegex.test(newPassword)) {
       alert(
         "Password must contain uppercase, lowercase, number & special character"
@@ -55,10 +59,28 @@ function Login() {
       return;
     }
 
-    localStorage.setItem("registeredPassword", newPassword);
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/users/reset-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, newPassword }),
+        }
+      );
 
-    alert("Password updated successfully!");
-    setIsForgot(false);
+      const data = await res.json();
+
+      alert(data.message);
+      setIsForgot(false);
+      setNewPassword("");
+
+    } catch (err) {
+      console.log(err);
+      alert("Error updating password");
+    }
   };
 
   return (
@@ -70,26 +92,41 @@ function Login() {
           <>
             <h2>User Login</h2>
 
+            {error && <p style={{ color: "red" }}>{error}</p>}
+
             <input
               type="email"
-              placeholder="Email (@gmail.com)"
+              placeholder="Enter Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙈" : "👁"}
+              </span>
+            </div>
 
             <button className="btn-primary" onClick={handleLogin}>
               Login
             </button>
 
             <p
-              style={{ cursor: "pointer", marginTop: "10px", color: "#ff4d4d" }}
+              style={{
+                cursor: "pointer",
+                marginTop: "10px",
+                color: "#ff4d4d",
+              }}
               onClick={() => setIsForgot(true)}
             >
               Forgot Password?
@@ -108,7 +145,7 @@ function Login() {
 
             <input
               type="email"
-              placeholder="Enter registered Gmail"
+              placeholder="Enter Registered Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -128,7 +165,11 @@ function Login() {
             </button>
 
             <p
-              style={{ cursor: "pointer", marginTop: "10px", color: "#ff4d4d" }}
+              style={{
+                cursor: "pointer",
+                marginTop: "10px",
+                color: "#ff4d4d",
+              }}
               onClick={() => setIsForgot(false)}
             >
               Back to Login
